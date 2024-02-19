@@ -73,18 +73,17 @@ main :: proc() {
 		}
 	}
 
-	score_set := ds.score_set_init()
-	ds.insert_or_update(score_set, "bonjour", 100)
-	ds.insert_or_update(score_set, "bonjour", 10)
-	ds.insert_or_update(score_set, "cool", 4)
-	ds.insert_or_update(score_set, "coucou", 12)
-	ds.insert_or_update(score_set, "akey", 100)
-	ds.insert_or_update(score_set, "yooo", 10)
-	ds.insert_or_update(score_set, "aurevoir", 4)
-	ds.insert_or_update(score_set, "ciao", 12)
-	ds.insert_or_update(score_set, "anotherkey", 534)
-
-	ds.debug_skip_list(score_set.score_to_key^)
+	// score_set := ds.score_set_init()
+	// ds.insert_or_update(score_set, "bonjour", 100)
+	// ds.insert_or_update(score_set, "bonjour", 10)
+	// ds.insert_or_update(score_set, "cool", 4)
+	// ds.insert_or_update(score_set, "coucou", 12)
+	// ds.insert_or_update(score_set, "akey", 100)
+	// ds.insert_or_update(score_set, "yooo", 10)
+	// ds.insert_or_update(score_set, "aurevoir", 4)
+	// ds.insert_or_update(score_set, "ciao", 12)
+	// ds.insert_or_update(score_set, "anotherkey", 534)
+	// ds.debug_skip_list(score_set.score_to_key^)
 
 	inst := red.make_inst()
 	defer free(inst)
