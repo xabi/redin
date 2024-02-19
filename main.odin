@@ -26,8 +26,6 @@ client_worker :: proc(inst: ^red.RedinInst, client_socket: net.TCP_Socket) {
 		for {
 			bytes_read, read_err := net.recv(client_socket, buf[:])
 			if read_err != nil {
-				fmt.println(read_err)
-				fmt.println("client closed connection")
 				break client_loop
 			}
 			strings.write_bytes(&builder, buf[0:bytes_read])
@@ -44,7 +42,6 @@ client_worker :: proc(inst: ^red.RedinInst, client_socket: net.TCP_Socket) {
 			result := red.red_interpret(inst, command)
 			buf := red.result_to_result_string(result)
 			defer delete(buf)
-			fmt.println("repsonse:", buf)
 			bytes_written, write_err := net.send_tcp(client_socket, transmute([]byte)buf)
 			if write_err != nil {
 				fmt.println("an error occured while responding to client", write_err)
@@ -55,7 +52,6 @@ client_worker :: proc(inst: ^red.RedinInst, client_socket: net.TCP_Socket) {
 
 main :: proc() {
 	if ODIN_DEBUG {
-		fmt.println("in debug mod")
 		// context.logger = log.create_console_logger()
 		track: mem.Tracking_Allocator
 		mem.tracking_allocator_init(&track, context.allocator)
@@ -76,42 +72,6 @@ main :: proc() {
 			mem.tracking_allocator_destroy(&track)
 		}
 	}
-	skiplist := ds.SkipList{}
-	ds.insert_item(&skiplist, "bonjour", 50)
-	ds.insert_item(&skiplist, "hello", 100)
-	ds.insert_item(&skiplist, "efbjze", 50)
-	ds.insert_item(&skiplist, "efbjzz", 50)
-	ds.insert_item(&skiplist, "efbj", 75)
-	ds.insert_item(&skiplist, "efbje", 5)
-	ds.insert_item(&skiplist, "lastfive", 5)
-	ds.insert_item(&skiplist, "afirst", 5)
-	ds.insert_item(&skiplist, "afirst", 5)
-	ds.insert_item(&skiplist, "zlast", 100)
-	ds.insert_item(&skiplist, "zlast50", 50)
-	ds.insert_item(&skiplist, "a50", 50)
-	ds.insert_item(&skiplist, "z100", 100)
-	ds.insert_item(&skiplist, "z50", 50)
-	ds.insert_item(&skiplist, "b50", 50)
-	ds.insert_item(&skiplist, "a75", 75)
-	ds.insert_item(&skiplist, "zbiggest", 110)
-	ds.insert_item(&skiplist, "z5", 5)
-	ds.insert_item(&skiplist, "z5", 5)
-	ds.insert_item(&skiplist, "a5", 5)
-	ds.insert_item(&skiplist, "a5", 5)
-	ds.insert_item(&skiplist, "a5", 5)
-	ds.insert_item(&skiplist, "a5", 5)
-
-	// ds.debug_skip_list(skiplist)
-
-	ds.delete_elems_with_value_and_score(&skiplist, "efbizefhbihfzeb", 23235)
-	ds.update_score(&skiplist, "a5", 5, 41234124)
-	// ds.delete_elems_with_value_and_score(&skiplist, "hello", 100)
-	// head_elems := ds.getdel_lowest_scores(&skiplist, 6)
-	// defer delete(head_elems)
-	// tail_elems := ds.getdel_highest_scores(&skiplist, 6)
-	// defer delete(tail_elems)
-	// ds.delete_elems_with_score(&skiplist, 50)
-	// ds.debug_skip_list(skiplist)
 
 	score_set := ds.score_set_init()
 	ds.insert_or_update(score_set, "bonjour", 100)
@@ -122,29 +82,30 @@ main :: proc() {
 	ds.insert_or_update(score_set, "yooo", 10)
 	ds.insert_or_update(score_set, "aurevoir", 4)
 	ds.insert_or_update(score_set, "ciao", 12)
+	ds.insert_or_update(score_set, "anotherkey", 534)
 
 	ds.debug_skip_list(score_set.score_to_key^)
 
-	// inst := red.make_inst()
-	// defer free(inst)
-	// defer delete(inst^)
+	inst := red.make_inst()
+	defer free(inst)
+	defer delete(inst^)
 
-	// endpoint, endpoint_parsed := net.parse_endpoint("0.0.0.0:3000")
-	// endpoint.port = 3000
+	endpoint, endpoint_parsed := net.parse_endpoint("0.0.0.0:3000")
+	endpoint.port = 3000
 
-	// listen_socket, listen_error := net.listen_tcp(endpoint)
+	listen_socket, listen_error := net.listen_tcp(endpoint)
 
-	// for {
-	// 	client_socket, client_endpoint, err := net.accept_tcp(listen_socket)
-	// 	if err != nil do break
-	// 	t := thread.create_and_start_with_poly_data2(
-	// 		inst,
-	// 		client_socket,
-	// 		client_worker,
-	// 		context,
-	// 		thread.Thread_Priority.Normal,
-	// 		true,
-	// 	)
-	// }
+	for {
+		client_socket, client_endpoint, err := net.accept_tcp(listen_socket)
+		if err != nil do break
+		t := thread.create_and_start_with_poly_data2(
+			inst,
+			client_socket,
+			client_worker,
+			context,
+			thread.Thread_Priority.Normal,
+			true,
+		)
+	}
 
 }
